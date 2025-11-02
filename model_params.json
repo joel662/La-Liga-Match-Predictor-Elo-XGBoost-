@@ -1,0 +1,14 @@
+{
+  "BASE_ELO": 1500.0,
+  "K": 30.0,
+  "HOME_ADV_default": 90.0,
+  "draw_model": {
+    "d": 0.3146574852210944,
+    "s": 468.92765962731954
+  },
+  "avg_home_goals": 1.533210332103321,
+  "avg_away_goals": 1.1336320506062203,
+  "alpha_home": 1.2233878529368405,
+  "alpha_away": 1.025139561287805,
+  "schema_detected": "match_level"
+}
