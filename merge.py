@@ -2,64 +2,69 @@ import pandas as pd
 import glob
 import os
 
-# === CONFIG ===
-data_path = os.path.join(os.path.dirname(__file__), "Match Data")
-output_file = "laliga_merged_clean.csv"
+DATA_DIR = "Match Data"
+OUTPUT_FILE = "laliga_merged_clean.csv"
 
-# === 1️⃣ FIND FILES ===
-all_files = sorted(glob.glob(os.path.join(data_path, "*.csv")))
-print(f"📂 Found {len(all_files)} files")
 
-df_list = []
-for i, file in enumerate(all_files, 1):
-    print(f"[{i}/{len(all_files)}] Reading {os.path.basename(file)} ...")
+def load_and_clean_csv(path):
     try:
-        # Read CSV safely with on_bad_lines='skip'
-        df = pd.read_csv(file, skip_blank_lines=True, skipinitialspace=True, on_bad_lines="skip")
+        df = pd.read_csv(path, on_bad_lines="skip")
+    except:
+        return pd.DataFrame()
 
-        # Drop completely empty columns (e.g. "Unnamed: 44" etc.)
-        df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
+    # Remove unnamed columns
+    df = df.loc[:, ~df.columns.str.contains("Unnamed")]
 
-        # Trim spaces from headers
-        df.columns = df.columns.str.strip()
+    if "Date" not in df.columns:
+        return pd.DataFrame()
 
-        # Keep only relevant columns (if they exist)
-        keep_cols = [
-            "Div", "Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG", "FTR",
-            "B365H", "B365D", "B365A", "BbMxH", "BbMxD", "BbMxA",
-            "BbAvH", "BbAvD", "BbAvA", "PSH", "PSD", "PSA",
-            "HTHG", "HTAG", "HTR"
-        ]
-        df = df[[c for c in keep_cols if c in df.columns]]
+    df["Date"] = pd.to_datetime(df["Date"], errors="coerce", dayfirst=True)
+    df = df.dropna(subset=["Date"])
 
-        df_list.append(df)
-        print(f"✅ Loaded {len(df)} rows")
+    needed_cols = [
+        "Div", "Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG", "FTR",
+        "B365H", "B365D", "B365A", "BbMxH", "BbMxD", "BbMxA",
+        "BbAvH", "BbAvD", "BbAvA", "HTHG", "HTAG", "HTR",
+        "PSH", "PSD", "PSA",
+    ]
+    df = df[[c for c in needed_cols if c in df.columns]]
 
-    except Exception as e:
-        print(f"⚠️ Error reading {file}: {e}")
+    return df
 
-# === 2️⃣ CONCATENATE ===
-print("\n🔄 Merging files...")
-merged = pd.concat(df_list, ignore_index=True)
-print(f"✅ Merged shape: {merged.shape}")
 
-# === 3️⃣ CLEAN DATES ===
-print("📅 Converting date column...")
-merged["Date"] = pd.to_datetime(merged["Date"], errors="coerce", dayfirst=True)
-merged = merged.dropna(subset=["Date"])
-merged = merged.sort_values("Date").reset_index(drop=True)
+def main():
+    print("🔄 Merging CSV files...")
 
-# === 4️⃣ FILTER TO LA LIGA (SP1) ===
-if "Div" in merged.columns:
+    csv_files = glob.glob(os.path.join(DATA_DIR, "*.csv"))
+    frames = []
+
+    for f in csv_files:
+        print(f" → {os.path.basename(f)}")
+        df = load_and_clean_csv(f)
+        if not df.empty:
+            frames.append(df)
+
+    if not frames:
+        print("❌ No valid CSVs found.")
+        return
+
+    merged = pd.concat(frames, ignore_index=True)
+
+    # Apply SP1 filter
     merged = merged[merged["Div"].astype(str).str.upper() == "SP1"]
 
-# === 5️⃣ REMOVE DUPLICATES & RESET INDEX ===
-merged = merged.drop_duplicates(subset=["Date", "HomeTeam", "AwayTeam"])
-merged = merged.reset_index(drop=True)
+    # Drop duplicates
+    merged = merged.drop_duplicates(subset=["Date", "HomeTeam", "AwayTeam"], keep="last")
 
-# === 6️⃣ SAVE FINAL CLEAN FILE ===
-merged.to_csv(output_file, index=False)
-print(f"\n✅ Cleaned and merged La Liga dataset saved as '{output_file}'")
-print(f"   Total rows: {len(merged)}")
-print(f"   Date range: {merged['Date'].min():%Y-%m-%d} → {merged['Date'].max():%Y-%m-%d}")
-print(f"   Columns: {list(merged.columns)}")
+    # Sort by date
+    merged = merged.sort_values("Date").reset_index(drop=True)
+
+    merged.to_csv(OUTPUT_FILE, index=False)
+
+    print(f"\n✅ Saved '{OUTPUT_FILE}'")
+    print(f"Total matches: {len(merged)}")
+    print(f"Date range: {merged['Date'].min().date()} → {merged['Date'].max().date()}")
+
+
+if __name__ == "__main__":
+    main()
