@@ -56,7 +56,7 @@ def build_ensemble():
     print("📊 Loading training features...")
     feats_df = pd.read_csv(f"{MODEL_DIR}/training_features.csv")
     
-    # Load model params to get feature columns
+    # Load model params to get feature columns and split info
     with open(f"{MODEL_DIR}/model_params.json") as f:
         params = json.load(f)
     
@@ -70,14 +70,26 @@ def build_ensemble():
         ]
     )
     
-    # Prepare training data
-    X = feats_df[feature_cols]
-    y = feats_df[["HomeWin", "Draw", "AwayWin"]].idxmax(axis=1).map(
+    # Get train/test split info
+    split_info = params.get("train_test_split", {})
+    test_ratio = split_info.get("test_ratio", 0.2)
+    split_idx = int(len(feats_df) * (1 - test_ratio))
+    
+    # Split data same way as training
+    train_df = feats_df.iloc[:split_idx]
+    test_df = feats_df.iloc[split_idx:]
+    
+    X_train = train_df[feature_cols]
+    y_train = train_df[["HomeWin", "Draw", "AwayWin"]].idxmax(axis=1).map(
+        {"HomeWin": 0, "Draw": 1, "AwayWin": 2}
+    )
+    
+    X_test = test_df[feature_cols]
+    y_test = test_df[["HomeWin", "Draw", "AwayWin"]].idxmax(axis=1).map(
         {"HomeWin": 0, "Draw": 1, "AwayWin": 2}
     )
     
     # Create ensemble with optimized weights
-    # You can experiment with different weights
     ensemble = EnsembleModel(
         xgb_model=xgb_model,
         rf_model=rf_model,
@@ -86,14 +98,16 @@ def build_ensemble():
     
     # Evaluate ensemble on training data
     print("📈 Evaluating ensemble model...")
-    ensemble_preds = ensemble.predict(X)
-    ensemble_probs = ensemble.predict_proba(X)
     
-    ensemble_acc = accuracy_score(y, ensemble_preds)
-    ensemble_ll = log_loss(y, ensemble_probs)
+    ensemble_train_preds = ensemble.predict(X_train)
+    ensemble_train_probs = ensemble.predict_proba(X_train)
+    ensemble_train_acc = accuracy_score(y_train, ensemble_train_preds)
+    ensemble_train_ll = log_loss(y_train, ensemble_train_probs)
     
-    print(f"✅ Ensemble Accuracy: {ensemble_acc:.4f}")
-    print(f"✅ Ensemble Log Loss: {ensemble_ll:.4f}")
+    ensemble_test_preds = ensemble.predict(X_test)
+    ensemble_test_probs = ensemble.predict_proba(X_test)
+    ensemble_test_acc = accuracy_score(y_test, ensemble_test_preds)
+    ensemble_test_ll = log_loss(y_test, ensemble_test_probs)
     
     # Save ensemble model
     print("💾 Saving ensemble model...")
@@ -102,8 +116,12 @@ def build_ensemble():
     # Update model_params.json with ensemble metrics
     print("📝 Updating model parameters with ensemble metrics...")
     params["metrics"]["Ensemble"] = {
-        "accuracy": float(ensemble_acc),
-        "logloss": float(ensemble_ll)
+        "train_accuracy": float(ensemble_train_acc),
+        "train_logloss": float(ensemble_train_ll),
+        "test_accuracy": float(ensemble_test_acc),
+        "test_logloss": float(ensemble_test_ll),
+        "accuracy": float(ensemble_test_acc),  # Use test accuracy for display
+        "logloss": float(ensemble_test_ll)
     }
     
     # Add ensemble weights to params
@@ -115,31 +133,42 @@ def build_ensemble():
     with open(f"{MODEL_DIR}/model_params.json", "w") as f:
         json.dump(params, f, indent=4)
     
-    print("\n============================")
+    print("\n" + "="*60)
     print("ENSEMBLE BUILD COMPLETE")
-    print("============================")
-    print(f"📈 XGBoost Weight: {ensemble.weights[0]:.2f}")
-    print(f"🌲 Random Forest Weight: {ensemble.weights[1]:.2f}")
-    print(f"🎯 Ensemble Accuracy: {ensemble_acc:.4f}")
-    print(f"📉 Ensemble Log Loss: {ensemble_ll:.4f}")
-    print("============================")
+    print("="*60)
+    print(f"\n🎯 Ensemble Results:")
+    print(f"   Train - Accuracy: {ensemble_train_acc:.4f}, LogLoss: {ensemble_train_ll:.4f}")
+    print(f"   Test  - Accuracy: {ensemble_test_acc:.4f}, LogLoss: {ensemble_test_ll:.4f}")
+    
+    print(f"\n⚖️ Ensemble Weights:")
+    print(f"   XGBoost: {ensemble.weights[0]:.2f}")
+    print(f"   Random Forest: {ensemble.weights[1]:.2f}")
     
     # Compare with individual models
     if "XGBoost" in params["metrics"] and "Random Forest" in params["metrics"]:
-        xgb_acc = params["metrics"]["XGBoost"]["accuracy"]
-        rf_acc = params["metrics"]["Random Forest"]["accuracy"]
+        xgb_test_acc = params["metrics"]["XGBoost"]["test_accuracy"]
+        rf_test_acc = params["metrics"]["Random Forest"]["test_accuracy"]
         
-        print("\n📊 Model Comparison:")
-        print(f"   XGBoost:       {xgb_acc:.4f}")
-        print(f"   Random Forest: {rf_acc:.4f}")
-        print(f"   Ensemble:      {ensemble_acc:.4f}")
+        print("\n" + "="*60)
+        print("📊 Model Comparison (Test Set):")
+        print("="*60)
+        print(f"   XGBoost:       {xgb_test_acc:.4f}")
+        print(f"   Random Forest: {rf_test_acc:.4f}")
+        print(f"   Ensemble:      {ensemble_test_acc:.4f}")
         
-        if ensemble_acc > max(xgb_acc, rf_acc):
+        if ensemble_test_acc > max(xgb_test_acc, rf_test_acc):
             print("   🏆 Ensemble outperforms individual models!")
-        elif ensemble_acc > min(xgb_acc, rf_acc):
+        elif ensemble_test_acc > min(xgb_test_acc, rf_test_acc):
             print("   ⚖️ Ensemble performs between the two models")
         else:
             print("   ⚠️ Consider adjusting ensemble weights")
+        
+        # Overfitting check
+        ensemble_overfit = ensemble_train_acc - ensemble_test_acc
+        print(f"\n📊 Overfitting Analysis:")
+        print(f"   Ensemble gap: {ensemble_overfit:.4f} {'✅ Good' if ensemble_overfit < 0.1 else '⚠️ Overfitting'}")
+        
+    print("="*60)
 
 
 if __name__ == "__main__":

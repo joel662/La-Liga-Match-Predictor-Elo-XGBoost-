@@ -1,170 +1,257 @@
-# ⚽ La Liga Match Predictor (Elo + XGBoost Hybrid)
+# ⚽ La Liga Match Predictor
 
-This project combines **Elo ratings** and **XGBoost machine learning** to predict outcomes of La Liga football matches.  
-It uses historical match data to build dynamic team ratings and then trains an ML model to estimate the probability of **Home Win**, **Draw**, and **Away Win**.  
-The app is deployed using **Streamlit** for interactive visualization.
+An advanced machine learning system for predicting La Liga match outcomes using hybrid Elo ratings and ensemble modeling.
 
----
 
-## 🧩 How It Works
 
-### 1️⃣ Data Preprocessing
-The system takes a cleaned La Liga CSV (e.g., `laliga_merged_clean.csv`) containing:
-- `Date`, `HomeTeam`, `AwayTeam`
-- `FTHG` (Full-Time Home Goals), `FTAG` (Full-Time Away Goals)
-- `FTR` (Full-Time Result: H/D/A)
+## 🌟 Features
 
-It ensures consistent date formats and removes invalid or missing rows.
+- **Hybrid Elo System** - Dynamic team ratings that update after each match
+- **Multiple ML Models** - XGBoost, Random Forest, and Ensemble predictions
+- **Real-time Updates** - Fetch latest La Liga data and retrain models on-demand
+- **Interactive Dashboard** - Beautiful Streamlit UI with live predictions
+- **Historical Analysis** - Track Elo rating trends over time
+- **Performance Metrics** - View accuracy and log loss for each model
 
----
+## 📊 Model Performance
 
-### 2️⃣ Elo Rating System
-Each team begins with a **base Elo** of 1500.  
-Elo ratings are updated after every match using:
-- **K-factor:** 30  
-- **Home advantage:** +90 Elo points
+The system uses three prediction models:
 
-After each game:
-- The **expected score** for each team is computed.  
-- Elo ratings are adjusted based on the actual result:
-  - Home win → Elo gain for home team
-  - Away win → Elo gain for away team
-  - Draw → minor adjustment for both
+- **XGBoost** - Gradient boosting with optimized hyperparameters
+- **Random Forest** - Ensemble of decision trees
+- **Ensemble** - Weighted combination of both models (typically best performance)
 
-Elo data is stored per match as:
-```
-EloHomeBefore, EloAwayBefore, EloDiff
-```
+Each model is trained on features including:
+- Pre-match Elo ratings
+- Recent form (last 5 matches)
+- Goal differential trends
+- Rest days between matches
+- Home advantage factor
 
----
+## 🚀 Quick Start
 
-### 3️⃣ Recency Weighting
-Recent matches influence the model more strongly than older ones.
+### Prerequisites
 
-A **time-decay weight** is applied:
-$$
-\text{Weight} = e^{-\frac{\text{days\_ago}}{180}}
-$$
-This gives exponentially higher weight to newer matches.
-
----
-
-### 4️⃣ XGBoost Training
-The **XGBoost classifier** predicts one of three outcomes:
-- 0 → Home Win  
-- 1 → Draw  
-- 2 → Away Win  
-
-Features used:
-- `EloHomeBefore`
-- `EloAwayBefore`
-- `EloDiff`
-
-Model configuration:
-```python
-xgb.XGBClassifier(
-    objective="multi:softprob",
-    num_class=3,
-    learning_rate=0.05,
-    max_depth=5,
-    n_estimators=400,
-    subsample=0.8,
-    colsample_bytree=0.8
-)
-```
-
-Evaluation metrics:
-- Accuracy
-- Log Loss
-- Classification Report
-
-Trained artifacts are stored in `/models`:
-```
-xgb_model.pkl
-training_features.csv
-current_elo_ratings.csv
-model_params.json
-```
-
----
-
-### 5️⃣ Streamlit Web App
-
-The **Streamlit dashboard** (`app.py`) lets users:
-1. Select Home and Away teams.
-2. View **predicted probabilities** via bar chart or gauge chart.
-3. See **Elo rating history trends** for both teams.
-4. Retrain the model dynamically from the UI.
-
-#### 📊 Components
-- **Bar Chart** – shows win/draw probabilities.
-- **Line Chart** – displays Elo rating progression.
-- **Team Logos** (optional) – fetched from local folder or ESPN.
-- **Retrain Button** – runs the pipeline again for updated data.
-
----
-
-## 🗂️ Folder Structure
-
-```
-LaLiga-Match-Predictor/
-│
-├── train.py                 # Model training pipeline (Elo + XGBoost)
-├── app.py                   # Streamlit UI for prediction
-├── laliga_merged_clean.csv  # Historical dataset
-├── requirements.txt         # Python dependencies
-├── models/
-│   ├── xgb_model.pkl
-│   ├── training_features.csv
-│   ├── current_elo_ratings.csv
-│   └── model_params.json
-└── README.md
-```
-
----
-
-## ⚙️ Installation & Run
-
-### 1️⃣ Clone the Repo
 ```bash
-git clone https://github.com/joel662/La-Liga-Match-Predictor-Elo-XGBoost-.git
-cd La-Liga-Match-Predictor-Elo-XGBoost-
+Python 3.8+
+pip
 ```
 
-### 2️⃣ Install Dependencies
+### Installation
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/laliga-predictor.git
+cd laliga-predictor
+```
+
+2. **Install dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Train the Model
+3. **Set up directory structure**
 ```bash
-python train.py laliga_merged_clean.csv
+mkdir -p "Match Data"
+mkdir -p models_improved
 ```
 
-### 4️⃣ Run the Streamlit App
+### Initial Setup
+
+1. **Download historical data**
+   - Place La Liga CSV files in the `Match Data/` directory
+   - Files should be from [football-data.co.uk](https://www.football-data.co.uk/)
+
+2. **Merge datasets**
+```bash
+python merge.py
+```
+
+3. **Train initial models**
+```bash
+python train_improved.py laliga_merged_clean.csv
+```
+
+4. **Build ensemble**
+```bash
+python ensemble.py
+```
+
+5. **Launch the app**
 ```bash
 streamlit run app.py
 ```
 
-Then open `http://localhost:8501` in your browser.
+The app will open in your browser at `http://localhost:8501`
+
+## 📁 Project Structure
+
+```
+laliga-predictor/
+├── app.py                          # Streamlit web application
+├── train_improved.py               # Model training script
+├── ensemble.py                     # Ensemble model builder
+├── merge.py                        # Data merging utility
+├── requirements.txt                # Python dependencies
+├── Match Data/                     # Raw CSV files
+│   └── SP1_*.csv
+├── models_improved/                # Trained models & artifacts
+│   ├── xgb_model.pkl              # XGBoost model
+│   ├── rf_model.pkl               # Random Forest model
+│   ├── ensemble_model.pkl         # Ensemble model
+│   ├── current_elo_ratings.csv    # Latest Elo ratings
+│   ├── training_features.csv      # Feature dataset
+│   └── model_params.json          # Model metadata & metrics
+└── laliga_merged_clean.csv        # Merged training dataset
+```
+
+## 🎯 Usage
+
+### Making Predictions
+
+1. **Select a model** from the dropdown (XGBoost, Random Forest, or Ensemble)
+2. **Choose teams** - Select home and away teams
+3. **View predictions** - See win/draw/loss probabilities
+4. **Analyze trends** - Check historical Elo ratings
+
+### Updating Models
+
+Click the **"Fetch Latest Data & Retrain"** button to:
+- Download the latest La Liga data
+- Merge with historical data
+- Retrain all models
+- Update the ensemble
+
+## 🔧 Configuration
+
+### Model Parameters
+
+Edit `train_improved.py` to adjust:
+
+```python
+# XGBoost parameters
+xgb = XGBClassifier(
+    n_estimators=400,
+    max_depth=5,
+    learning_rate=0.05,
+    subsample=0.9,
+    colsample_bytree=0.9,
+)
+
+# Random Forest parameters
+rf = RandomForestClassifier(
+    n_estimators=400,
+    max_depth=20
+)
+```
+
+### Elo System
+
+Adjust Elo parameters in `train_improved.py`:
+
+```python
+def update_elo(elo_home, elo_away, result, k=20, home_adv=60):
+    # k: learning rate (higher = more volatile)
+    # home_adv: home advantage points
+```
+
+### Ensemble Weights
+
+Modify ensemble weights in `ensemble.py`:
+
+```python
+ensemble = EnsembleModel(
+    xgb_model=xgb_model,
+    rf_model=rf_model,
+    weights=[0.55, 0.45]  # [XGBoost weight, RF weight]
+)
+```
+
+## 📈 Model Training Details
+
+### Feature Engineering
+
+The system generates the following features for each match:
+
+| Feature | Description |
+|---------|-------------|
+| `EloHomeBefore` | Home team's Elo rating before match |
+| `EloAwayBefore` | Away team's Elo rating before match |
+| `EloDiff` | Elo difference + home advantage |
+| `HomeFormPts5` | Home team's points in last 5 matches |
+| `AwayFormPts5` | Away team's points in last 5 matches |
+| `HomeGD5` | Home team's goal difference (last 5) |
+| `AwayGD5` | Away team's goal difference (last 5) |
+| `HomeRestDays` | Days since home team's last match |
+| `AwayRestDays` | Days since away team's last match |
+
+### Elo Rating System
+
+- **Initial Rating**: 1500 for all teams
+- **K-factor**: 20 (controls rating volatility)
+- **Home Advantage**: +60 Elo points
+- **Update Formula**: Based on expected vs actual results
+
+## 📊 Performance Metrics
+
+Models are evaluated using:
+
+- **Accuracy** - Percentage of correct predictions
+- **Log Loss** - Probabilistic prediction quality (lower is better)
+
+Typical performance:
+- Accuracy: 50-55%
+- Log Loss: 1.00-1.10
+
+## 🛠️ Technical Stack
+
+- **Python 3.8+** - Core language
+- **Streamlit** - Web interface
+- **XGBoost** - Gradient boosting
+- **Scikit-learn** - Random Forest & metrics
+- **Pandas** - Data manipulation
+- **Plotly** - Interactive charts
+- **Joblib** - Model serialization
+
+## 📝 Requirements
+
+```txt
+streamlit>=1.28.0
+pandas>=1.5.0
+numpy>=1.23.0
+scikit-learn>=1.2.0
+xgboost>=1.7.0
+plotly>=5.14.0
+joblib>=1.2.0
+requests>=2.28.0
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- Data source: [Football-Data.co.uk](https://www.football-data.co.uk/)
+- Elo rating system inspired by chess rankings
+- Built with ❤️ for football analytics enthusiasts
+
+## 📧 Contact
+
+**Developer**: Joel
+
+For questions or suggestions, please open an issue on GitHub.
 
 ---
 
-## 🌍 Optional Deployment
-You can deploy this project for free using [Streamlit Cloud](https://share.streamlit.io):
-1. Push your code to GitHub.
-2. Go to **share.streamlit.io** → "New App".
-3. Select this repo and choose `app.py`.
-4. Click **Deploy** 🚀
-
----
-
-## 🧠 Concept Summary
-| Component | Description |
-|------------|--------------|
-| **Elo Rating** | Measures team strength dynamically. |
-| **Recency Weight** | Recent games weigh more heavily. |
-| **XGBoost Classifier** | Learns non-linear relationships between Elo and outcomes. |
-| **Streamlit UI** | Interactive match predictor dashboard. |
-
----
+⚽ **Enjoy predicting La Liga matches!** 🇪🇸

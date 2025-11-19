@@ -62,7 +62,7 @@ def compute_rest_days(current_date, previous_dates):
 # =========================================================
 # MAIN TRAINING FUNCTION
 # =========================================================
-def train_model(csv_file):
+def train_model(csv_file, test_split_ratio=0.2):
 
     print("📂 Loading merged La Liga dataset...")
     df = pd.read_csv(csv_file)
@@ -165,6 +165,19 @@ def train_model(csv_file):
     elo_df = pd.DataFrame({"Team": list(elo.keys()), "Elo": list(elo.values())})
     elo_df.to_csv("models_improved/current_elo_ratings.csv", index=False)
 
+    # =====================================================
+    # TRAIN-TEST SPLIT (Chronological)
+    # =====================================================
+    print(f"\n📊 Splitting data: {int((1-test_split_ratio)*100)}% train, {int(test_split_ratio*100)}% test")
+    
+    # Split by date - train on older data, test on recent
+    split_idx = int(len(feats) * (1 - test_split_ratio))
+    train_df = feats.iloc[:split_idx]
+    test_df = feats.iloc[split_idx:]
+    
+    print(f"   Training matches: {len(train_df)} (until {train_df['Date'].max().strftime('%Y-%m-%d')})")
+    print(f"   Testing matches: {len(test_df)} (from {test_df['Date'].min().strftime('%Y-%m-%d')})")
+
     # Training labels + features
     feature_cols = [
         "EloHomeBefore", "EloAwayBefore", "EloDiff",
@@ -173,43 +186,71 @@ def train_model(csv_file):
         "HomeRestDays", "AwayRestDays"
     ]
 
-    X = feats[feature_cols]
-    y = feats[["HomeWin", "Draw", "AwayWin"]].idxmax(axis=1).map(
+    X_train = train_df[feature_cols]
+    y_train = train_df[["HomeWin", "Draw", "AwayWin"]].idxmax(axis=1).map(
+        {"HomeWin": 0, "Draw": 1, "AwayWin": 2}
+    )
+    
+    X_test = test_df[feature_cols]
+    y_test = test_df[["HomeWin", "Draw", "AwayWin"]].idxmax(axis=1).map(
         {"HomeWin": 0, "Draw": 1, "AwayWin": 2}
     )
 
     # =====================================================
-    # Train XGBoost
+    # Train XGBoost (with stronger regularization)
     # =====================================================
-    print("🔥 Training XGBoost...")
+    print("\n🔥 Training XGBoost...")
     xgb = XGBClassifier(
-        n_estimators=400,
-        max_depth=5,
-        learning_rate=0.05,
-        subsample=0.9,
-        colsample_bytree=0.9,
+        n_estimators=200,  # Reduced from 400
+        max_depth=3,  # Reduced from 5 - shallower trees
+        learning_rate=0.1,  # Increased from 0.05 - faster, fewer iterations
+        subsample=0.8,  # Reduced from 0.9 - more randomness
+        colsample_bytree=0.8,  # Reduced from 0.9 - more randomness
+        min_child_weight=5,  # Require more samples per leaf
+        gamma=0.1,  # Minimum loss reduction to split
+        reg_alpha=0.1,  # L1 regularization
+        reg_lambda=1.0,  # L2 regularization
         eval_metric="mlogloss",
+        random_state=42
     )
-    xgb.fit(X, y)
+    xgb.fit(X_train, y_train)
 
-    xgb_preds = xgb.predict(X)
-    xgb_probs = xgb.predict_proba(X)
-    xgb_acc = accuracy_score(y, xgb_preds)
-    xgb_ll = log_loss(y, xgb_probs)
+    # Evaluate on both train and test
+    xgb_train_preds = xgb.predict(X_train)
+    xgb_train_probs = xgb.predict_proba(X_train)
+    xgb_train_acc = accuracy_score(y_train, xgb_train_preds)
+    xgb_train_ll = log_loss(y_train, xgb_train_probs)
+
+    xgb_test_preds = xgb.predict(X_test)
+    xgb_test_probs = xgb.predict_proba(X_test)
+    xgb_test_acc = accuracy_score(y_test, xgb_test_preds)
+    xgb_test_ll = log_loss(y_test, xgb_test_probs)
 
     joblib.dump(xgb, "models_improved/xgb_model.pkl")
 
     # =====================================================
-    # Train Random Forest
+    # Train Random Forest (with regularization)
     # =====================================================
     print("🌲 Training Random Forest...")
-    rf = RandomForestClassifier(n_estimators=400, max_depth=20)
-    rf.fit(X, y)
+    rf = RandomForestClassifier(
+        n_estimators=400,
+        max_depth=8,  # Reduced from 20 to prevent overfitting
+        min_samples_split=20,  # Require at least 20 samples to split
+        min_samples_leaf=10,  # Require at least 10 samples per leaf
+        random_state=42
+    )
+    rf.fit(X_train, y_train)
 
-    rf_preds = rf.predict(X)
-    rf_probs = rf.predict_proba(X)
-    rf_acc = accuracy_score(y, rf_preds)
-    rf_ll = log_loss(y, rf_probs)
+    # Evaluate on both train and test
+    rf_train_preds = rf.predict(X_train)
+    rf_train_probs = rf.predict_proba(X_train)
+    rf_train_acc = accuracy_score(y_train, rf_train_preds)
+    rf_train_ll = log_loss(y_train, rf_train_probs)
+
+    rf_test_preds = rf.predict(X_test)
+    rf_test_probs = rf.predict_proba(X_test)
+    rf_test_acc = accuracy_score(y_test, rf_test_preds)
+    rf_test_ll = log_loss(y_test, rf_test_probs)
 
     joblib.dump(rf, "models_improved/rf_model.pkl")
 
@@ -219,14 +260,28 @@ def train_model(csv_file):
     params = {
         "HOME_ADV": 60,
         "feature_cols": feature_cols,
+        "train_test_split": {
+            "test_ratio": test_split_ratio,
+            "train_size": len(train_df),
+            "test_size": len(test_df),
+            "split_date": train_df['Date'].max().strftime('%Y-%m-%d')
+        },
         "metrics": {
             "XGBoost": {
-                "accuracy": float(xgb_acc),
-                "logloss": float(xgb_ll)
+                "train_accuracy": float(xgb_train_acc),
+                "train_logloss": float(xgb_train_ll),
+                "test_accuracy": float(xgb_test_acc),
+                "test_logloss": float(xgb_test_ll),
+                "accuracy": float(xgb_test_acc),  # Use test accuracy for display
+                "logloss": float(xgb_test_ll)
             },
             "Random Forest": {
-                "accuracy": float(rf_acc),
-                "logloss": float(rf_ll)
+                "train_accuracy": float(rf_train_acc),
+                "train_logloss": float(rf_train_ll),
+                "test_accuracy": float(rf_test_acc),
+                "test_logloss": float(rf_test_ll),
+                "accuracy": float(rf_test_acc),  # Use test accuracy for display
+                "logloss": float(rf_test_ll)
             }
         }
     }
@@ -234,16 +289,33 @@ def train_model(csv_file):
     with open("models_improved/model_params.json", "w") as f:
         json.dump(params, f, indent=4)
 
-    print("\n============================")
+    # =====================================================
+    # Print Results
+    # =====================================================
+    print("\n" + "="*60)
     print("TRAINING COMPLETE")
-    print("============================")
-    print(f"📈 XGBoost Accuracy: {xgb_acc:.4f}, LogLoss: {xgb_ll:.4f}")
-    print(f"🌲 Random Forest Accuracy: {rf_acc:.4f}, LogLoss: {rf_ll:.4f}")
-    print("============================")
+    print("="*60)
+    print("\n📈 XGBoost Results:")
+    print(f"   Train - Accuracy: {xgb_train_acc:.4f}, LogLoss: {xgb_train_ll:.4f}")
+    print(f"   Test  - Accuracy: {xgb_test_acc:.4f}, LogLoss: {xgb_test_ll:.4f}")
+    
+    print("\n🌲 Random Forest Results:")
+    print(f"   Train - Accuracy: {rf_train_acc:.4f}, LogLoss: {rf_train_ll:.4f}")
+    print(f"   Test  - Accuracy: {rf_test_acc:.4f}, LogLoss: {rf_test_ll:.4f}")
+    
+    print("\n" + "="*60)
+    print("📊 Overfitting Analysis:")
+    xgb_overfit = xgb_train_acc - xgb_test_acc
+    rf_overfit = rf_train_acc - rf_test_acc
+    print(f"   XGBoost gap: {xgb_overfit:.4f} {'✅ Good' if xgb_overfit < 0.1 else '⚠️ Overfitting'}")
+    print(f"   Random Forest gap: {rf_overfit:.4f} {'✅ Good' if rf_overfit < 0.1 else '⚠️ Overfitting'}")
+    print("="*60)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("csv_file", help="Merged La Liga CSV file (laliga_merged_clean.csv)")
+    parser.add_argument("--test-split", type=float, default=0.2, 
+                       help="Proportion of data to use for testing (default: 0.2)")
     args = parser.parse_args()
-    train_model(args.csv_file)
+    train_model(args.csv_file, args.test_split)
