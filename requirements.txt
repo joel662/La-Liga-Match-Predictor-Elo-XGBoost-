@@ -2,7 +2,12 @@ streamlit
 pandas
 numpy
 xgboost
+lightgbm
+catboost
 scikit-learn
 plotly
 joblib
+requests
 nbformat
+seaborn
+matplotlib
