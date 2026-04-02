@@ -1,0 +1,278 @@
+{
+    "Logistic Regression": {
+        "accuracy": 0.5359897172236504,
+        "log_loss": 0.971207717973138,
+        "ml_weight": 1.0,
+        "elo_weight": 0.0,
+        "confusion_matrix": [
+            [
+                631,
+                0,
+                67
+            ],
+            [
+                307,
+                0,
+                115
+            ],
+            [
+                233,
+                0,
+                203
+            ]
+        ]
+    },
+    "Random Forest": {
+        "accuracy": 0.531491002570694,
+        "log_loss": 0.9765503707861117,
+        "ml_weight": 1.0,
+        "elo_weight": 0.0,
+        "confusion_matrix": [
+            [
+                577,
+                47,
+                74
+            ],
+            [
+                257,
+                37,
+                128
+            ],
+            [
+                182,
+                41,
+                213
+            ]
+        ]
+    },
+    "SVM": {
+        "accuracy": 0.5250642673521851,
+        "log_loss": 1.011328154636593,
+        "ml_weight": 1.0,
+        "elo_weight": 0.0,
+        "confusion_matrix": [
+            [
+                628,
+                0,
+                70
+            ],
+            [
+                313,
+                0,
+                109
+            ],
+            [
+                248,
+                0,
+                188
+            ]
+        ]
+    },
+    "XGBoost": {
+        "accuracy": 0.5398457583547558,
+        "log_loss": 0.9666028086393582,
+        "ml_weight": 1.0,
+        "elo_weight": 0.0,
+        "confusion_matrix": [
+            [
+                572,
+                47,
+                79
+            ],
+            [
+                252,
+                46,
+                124
+            ],
+            [
+                177,
+                37,
+                222
+            ]
+        ]
+    },
+    "Hybrid (XGBoost-Elo)": {
+        "accuracy": 0.5462724935732648,
+        "log_loss": 0.9665719860328518,
+        "ml_weight": 0.74,
+        "elo_weight": 0.26,
+        "confusion_matrix": [
+            [
+                584,
+                28,
+                86
+            ],
+            [
+                259,
+                29,
+                134
+            ],
+            [
+                174,
+                25,
+                237
+            ]
+        ]
+    },
+    "Hybrid (Random Forest-Elo)": {
+        "accuracy": 0.5437017994858612,
+        "log_loss": 0.9727758760405852,
+        "ml_weight": 0.58,
+        "elo_weight": 0.42,
+        "confusion_matrix": [
+            [
+                594,
+                10,
+                94
+            ],
+            [
+                270,
+                15,
+                137
+            ],
+            [
+                188,
+                11,
+                237
+            ]
+        ]
+    },
+    "Hybrid (SVM-Elo)": {
+        "accuracy": 0.5282776349614395,
+        "log_loss": 0.9904824293976505,
+        "ml_weight": 0.07,
+        "elo_weight": 0.93,
+        "confusion_matrix": [
+            [
+                602,
+                0,
+                96
+            ],
+            [
+                287,
+                0,
+                135
+            ],
+            [
+                216,
+                0,
+                220
+            ]
+        ]
+    },
+    "Hybrid (LR-Elo)": {
+        "accuracy": 0.5404884318766067,
+        "log_loss": 0.9721942965886706,
+        "ml_weight": 0.85,
+        "elo_weight": 0.15,
+        "confusion_matrix": [
+            [
+                629,
+                0,
+                69
+            ],
+            [
+                302,
+                0,
+                120
+            ],
+            [
+                224,
+                0,
+                212
+            ]
+        ]
+    },
+    "LightGBM": {
+        "accuracy": 0.5218508997429306,
+        "log_loss": 0.9849690004317035,
+        "ml_weight": 1.0,
+        "elo_weight": 0.0,
+        "confusion_matrix": [
+            [
+                564,
+                61,
+                73
+            ],
+            [
+                256,
+                46,
+                120
+            ],
+            [
+                176,
+                58,
+                202
+            ]
+        ]
+    },
+    "CatBoost": {
+        "accuracy": 0.5469151670951157,
+        "log_loss": 0.9579894226737544,
+        "ml_weight": 1.0,
+        "elo_weight": 0.0,
+        "confusion_matrix": [
+            [
+                586,
+                25,
+                87
+            ],
+            [
+                258,
+                33,
+                131
+            ],
+            [
+                183,
+                21,
+                232
+            ]
+        ]
+    },
+    "Hybrid (LightGBM-Elo)": {
+        "accuracy": 0.5449871465295629,
+        "log_loss": 0.9761537899595711,
+        "ml_weight": 0.39,
+        "elo_weight": 0.61,
+        "confusion_matrix": [
+            [
+                602,
+                4,
+                92
+            ],
+            [
+                279,
+                9,
+                134
+            ],
+            [
+                195,
+                4,
+                237
+            ]
+        ]
+    },
+    "Hybrid (CatBoost-Elo)": {
+        "accuracy": 0.550771208226221,
+        "log_loss": 0.9594060056735467,
+        "ml_weight": 0.88,
+        "elo_weight": 0.12,
+        "confusion_matrix": [
+            [
+                592,
+                15,
+                91
+            ],
+            [
+                265,
+                22,
+                135
+            ],
+            [
+                182,
+                11,
+                243
+            ]
+        ]
+    }
+}
