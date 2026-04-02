@@ -8,6 +8,7 @@ import json
 import os
 from datetime import datetime
 import subprocess
+import sys
 
 # --- SETUP & CONFIG ---
 st.set_page_config(page_title="LaLiga Predictor Pro", page_icon="⚽", layout="wide")
@@ -58,7 +59,7 @@ def sync_data():
     with st.status("📦 Syncing LaLiga Data & Retraining...", expanded=True) as status:
         st.write("Downloading Latest CSV from football-data.co.uk...")
         try:
-            result = subprocess.run(["python", "data2.py"], capture_output=True, text=True)
+            result = subprocess.run([sys.executable, "data2.py"], capture_output=True, text=True)
             if result.returncode == 0:
                 st.write("✅ Data Integrated. Merged laliga_merged_clean.csv")
                 st.write("✅ Elo Ratings Recalculated.")
