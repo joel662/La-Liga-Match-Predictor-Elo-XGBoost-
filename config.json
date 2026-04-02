@@ -1,0 +1,8 @@
+{
+    "THE_ODDS_API_KEY": "c904b54c4ed3feef6558ba4a520d3c37",
+    "SPORT": "soccer_spain_la_liga",
+    "REGIONS": "eu,us,au,uk",
+    "MARKETS": "h2h",
+    "ODDS_FORMAT": "decimal",
+    "DATE_FORMAT": "iso"
+}

@@ -47,7 +47,7 @@
     },
     "SVM": {
         "accuracy": 0.5250642673521851,
-        "log_loss": 1.011328154636593,
+        "log_loss": 1.0115457815300246,
         "ml_weight": 1.0,
         "elo_weight": 0.0,
         "confusion_matrix": [
@@ -139,7 +139,7 @@
     },
     "Hybrid (SVM-Elo)": {
         "accuracy": 0.5282776349614395,
-        "log_loss": 0.9904824293976505,
+        "log_loss": 0.9905020418713523,
         "ml_weight": 0.07,
         "elo_weight": 0.93,
         "confusion_matrix": [

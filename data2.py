@@ -606,4 +606,72 @@ for res in results:
 with open(METRICS_PATH, 'w') as f:
     json.dump(all_metrics, f, indent=4)
 
-print("[SUCCESS] Dashboard assets updated successfully.")
+# --- LIVE ODDS AUTOMATION (The Odds API) ---
+def fetch_live_odds():
+    print("\n[INFO] Fetching Live Odds from The Odds API...")
+    config_path = "config.json"
+    if not os.path.exists(config_path):
+        print("[ERROR] config.json missing. Skipping Live Odds fetch.")
+        return
+
+    import requests
+    with open(config_path, 'r') as f:
+        conf = json.load(f)
+
+    api_key = conf.get("THE_ODDS_API_KEY")
+    sport = conf.get("SPORT", "soccer_spain_la_liga")
+    url = f"https://api.the-odds-api.com/v4/sports/{sport}/odds/"
+    
+    params = {
+        'apiKey': api_key,
+        'regions': conf.get("REGIONS", "eu,us,au,uk"),
+        'markets': conf.get("MARKETS", "h2h"),
+        'oddsFormat': conf.get("ODDS_FORMAT", "decimal")
+    }
+
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code != 200:
+            print(f"[ERROR] API failed: {response.status_code}")
+            return
+        
+        data = response.json()
+        upcoming_matches = []
+
+        for match in data:
+            home_team = match['home_team']
+            away_team = match['away_team']
+            start_time = match['commence_time']
+            
+            # Extract H2H odds
+            h_odds, d_odds, a_odds = [], [], []
+            for bookie in match['bookmakers']:
+                market = next((m for m in bookie['markets'] if m['key'] == 'h2h'), None)
+                if market:
+                    for outcome in market['outcomes']:
+                        if outcome['name'] == home_team: h_odds.append(outcome['price'])
+                        elif outcome['name'] == away_team: a_odds.append(outcome['price'])
+                        else: d_odds.append(outcome['price'])
+
+            if h_odds:
+                upcoming_matches.append({
+                    'Home': home_team,
+                    'Away': away_team,
+                    'Time': start_time,
+                    'Mean_H': round(sum(h_odds) / len(h_odds), 2),
+                    'Mean_D': round(sum(d_odds) / len(d_odds), 2),
+                    'Mean_A': round(sum(a_odds) / len(a_odds), 2),
+                    'Sources': len(h_odds)
+                })
+
+        with open("upcoming_odds.json", 'w') as f:
+            json.dump(upcoming_matches, f, indent=4)
+        print(f"[SUCCESS] Automated Odds update: {len(upcoming_matches)} fixtures synced.")
+
+    except Exception as e:
+        print(f"[ERROR] Live Odds update failed: {str(e)}")
+
+# Execute fetch
+fetch_live_odds()
+
+print("[SUCCESS] Dashboard assets and live odds updated successfully.")

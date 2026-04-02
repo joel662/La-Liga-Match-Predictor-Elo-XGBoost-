@@ -95,6 +95,53 @@ if not all_models:
     st.warning("⚠️ No trained models found in saved_models_pkl/. Running pipeline...")
     sync_data()
 
+# --- LIVE ODDS LOADER ---
+def load_live_odds():
+    if os.path.exists("upcoming_odds.json"):
+        with open("upcoming_odds.json", 'r') as f:
+            return json.load(f)
+    return []
+
+def get_synced_odds(h_team, a_team, upcoming_data):
+    # Mapping for common name variations between API and Football-Data.co.uk
+    mapping = {
+        'Real Sociedad': 'Sociedad',
+        'Real Betis': 'Betis',
+        'Atletico Madrid': 'Ath Madrid',
+        'Athletic Bilbao': 'Ath Bilbao',
+        'Celta Vigo': 'Celta',
+        'Granada CF': 'Granada',
+        'Deportivo Alaves': 'Alaves',
+        'Alaves': 'Alaves',
+        'Cadiz CF': 'Cadiz',
+        'Rayo Vallecano': 'Vallecano',
+        'UD Almeria': 'Almeria',
+        'Espanyol': 'Espanol',
+        'CA Osasuna': 'Osasuna',
+        'Elche CF': 'Elche'
+    }
+    
+    import unicodedata
+    def normalize(name):
+        if not name: return ""
+        # Remove accents
+        name = "".join(c for c in unicodedata.normalize('NFD', name) if unicodedata.category(c) != 'Mn')
+        name = mapping.get(name, name)
+        return name.lower().replace(' ', '').replace('-', '')
+
+    for match in upcoming_data:
+        api_h = normalize(match['Home'])
+        api_a = normalize(match['Away'])
+        sel_h = normalize(h_team)
+        sel_a = normalize(a_team)
+        
+        # Check both home-away and away-home combinations
+        if (api_h == sel_h and api_a == sel_a) or (api_h == sel_a and api_a == sel_h):
+            return match
+    return None
+
+upcoming_odds_data = load_live_odds()
+
 # --- SIDEBAR ---
 with st.sidebar:
     st.image("LaLiga_EA_Sports_2023_Vertical_Logo.svg.png", width=100)
@@ -135,7 +182,6 @@ with tab1:
         h_info = team_stats[team_stats['Team'] == home_team].iloc[0]
         st.write(f"**Elo Rating:** {h_info['Elo']:.0f}")
         st.write(f"**Recent Form:** {h_info['Form']} pts (last 5)")
-        st.write(f"**Goal Diff:** {h_info['GD']}")
 
     with col_r:
         st.subheader("Away Team")
@@ -143,7 +189,24 @@ with tab1:
         a_info = team_stats[team_stats['Team'] == away_team].iloc[0]
         st.write(f"**Elo Rating:** {a_info['Elo']:.0f}")
         st.write(f"**Recent Form:** {a_info['Form']} pts (last 5)")
-        st.write(f"**Goal Diff:** {a_info['GD']}")
+
+    # Check for Automated Odds
+    matched_odds = get_synced_odds(home_team, away_team, upcoming_odds_data)
+    
+    st.divider()
+    if matched_odds:
+        st.success(f"✅ **Market Consensus Synced!** (Found in upcoming fixtures)")
+        col1, col2, col3 = st.columns(3)
+        m_h = col1.number_input("Market Home", value=matched_odds['Mean_H'])
+        m_d = col2.number_input("Market Draw", value=matched_odds['Mean_D'])
+        m_a = col3.number_input("Market Away", value=matched_odds['Mean_A'])
+        st.caption(f"Sources aggregated: {matched_odds['Sources']} bookmakers (Mean Consensus)")
+    else:
+        st.warning("⚠️ No upcoming odds found for this pair. Using league averages.")
+        col1, col2, col3 = st.columns(3)
+        m_h = col1.number_input("Market Home", value=2.10)
+        m_d = col2.number_input("Market Draw", value=3.30)
+        m_a = col3.number_input("Market Away", value=3.50)
 
     if st.button("🔥 GENERATE PREDICTION"):
         # Calculate EloDiff (Home Adv Included: +75)
@@ -152,7 +215,7 @@ with tab1:
         # ML Input Features
         input_data = pd.DataFrame([[
             elo_diff, h_info['GD'], a_info['GD'],
-            2.0, 3.4, 3.5 # Fixed market odds fallback
+            m_h, m_d, m_a
         ]], columns=['EloDiff', 'H_GD', 'A_GD', 'Market_H', 'Market_D', 'Market_A'])
         
         # Get ML Probs
@@ -239,7 +302,9 @@ with tab2:
 
     st.divider()
     st.write("### 📈 Team Performance Matrix")
-    st.dataframe(team_stats.sort_values("Elo", ascending=False), use_container_width=True)
+    # Remove redundant market columns for a cleaner overview
+    display_stats = team_stats.drop(columns=['Market_H', 'Market_D', 'Market_A'])
+    st.dataframe(display_stats.sort_values("Elo", ascending=False), use_container_width=True)
 
 with tab3:
     st.subheader("🏆 Global Model Leaderboard")

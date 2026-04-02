@@ -1,0 +1,182 @@
+[
+    {
+        "Home": "Rayo Vallecano",
+        "Away": "Elche CF",
+        "Time": "2026-04-03T19:00:00Z",
+        "Mean_H": 1.75,
+        "Mean_D": 3.61,
+        "Mean_A": 4.81,
+        "Sources": 53
+    },
+    {
+        "Home": "Real Sociedad",
+        "Away": "Levante",
+        "Time": "2026-04-04T12:00:00Z",
+        "Mean_H": 1.58,
+        "Mean_D": 4.17,
+        "Mean_A": 5.43,
+        "Sources": 53
+    },
+    {
+        "Home": "Mallorca",
+        "Away": "Real Madrid",
+        "Time": "2026-04-04T14:15:00Z",
+        "Mean_H": 5.54,
+        "Mean_D": 4.26,
+        "Mean_A": 1.55,
+        "Sources": 53
+    },
+    {
+        "Home": "Real Betis",
+        "Away": "Espanyol",
+        "Time": "2026-04-04T16:30:00Z",
+        "Mean_H": 1.69,
+        "Mean_D": 3.97,
+        "Mean_A": 4.62,
+        "Sources": 52
+    },
+    {
+        "Home": "Atl\u00e9tico Madrid",
+        "Away": "Barcelona",
+        "Time": "2026-04-04T19:00:00Z",
+        "Mean_H": 3.03,
+        "Mean_D": 3.7,
+        "Mean_A": 2.18,
+        "Sources": 51
+    },
+    {
+        "Home": "Getafe",
+        "Away": "Athletic Bilbao",
+        "Time": "2026-04-05T12:00:00Z",
+        "Mean_H": 3.07,
+        "Mean_D": 2.84,
+        "Mean_A": 2.63,
+        "Sources": 53
+    },
+    {
+        "Home": "Valencia",
+        "Away": "Celta Vigo",
+        "Time": "2026-04-05T14:15:00Z",
+        "Mean_H": 2.33,
+        "Mean_D": 3.25,
+        "Mean_A": 3.06,
+        "Sources": 52
+    },
+    {
+        "Home": "Oviedo",
+        "Away": "Sevilla",
+        "Time": "2026-04-05T16:30:00Z",
+        "Mean_H": 2.89,
+        "Mean_D": 2.98,
+        "Mean_A": 2.65,
+        "Sources": 53
+    },
+    {
+        "Home": "Alav\u00e9s",
+        "Away": "CA Osasuna",
+        "Time": "2026-04-05T19:00:00Z",
+        "Mean_H": 2.47,
+        "Mean_D": 3.11,
+        "Mean_A": 3.01,
+        "Sources": 52
+    },
+    {
+        "Home": "Girona",
+        "Away": "Villarreal",
+        "Time": "2026-04-06T20:00:00Z",
+        "Mean_H": 3.12,
+        "Mean_D": 3.44,
+        "Mean_A": 2.23,
+        "Sources": 52
+    },
+    {
+        "Home": "Real Madrid",
+        "Away": "Girona",
+        "Time": "2026-04-10T19:00:00Z",
+        "Mean_H": 1.2,
+        "Mean_D": 7.0,
+        "Mean_A": 11.16,
+        "Sources": 36
+    },
+    {
+        "Home": "Real Sociedad",
+        "Away": "Alav\u00e9s",
+        "Time": "2026-04-11T12:00:00Z",
+        "Mean_H": 1.78,
+        "Mean_D": 3.47,
+        "Mean_A": 4.63,
+        "Sources": 35
+    },
+    {
+        "Home": "Elche CF",
+        "Away": "Valencia",
+        "Time": "2026-04-11T14:15:00Z",
+        "Mean_H": 2.38,
+        "Mean_D": 3.21,
+        "Mean_A": 2.98,
+        "Sources": 35
+    },
+    {
+        "Home": "Barcelona",
+        "Away": "Espanyol",
+        "Time": "2026-04-11T16:30:00Z",
+        "Mean_H": 1.21,
+        "Mean_D": 7.08,
+        "Mean_A": 10.91,
+        "Sources": 35
+    },
+    {
+        "Home": "Sevilla",
+        "Away": "Atl\u00e9tico Madrid",
+        "Time": "2026-04-11T19:00:00Z",
+        "Mean_H": 3.33,
+        "Mean_D": 3.44,
+        "Mean_A": 2.1,
+        "Sources": 34
+    },
+    {
+        "Home": "CA Osasuna",
+        "Away": "Real Betis",
+        "Time": "2026-04-12T12:00:00Z",
+        "Mean_H": 2.34,
+        "Mean_D": 3.41,
+        "Mean_A": 2.87,
+        "Sources": 34
+    },
+    {
+        "Home": "Mallorca",
+        "Away": "Rayo Vallecano",
+        "Time": "2026-04-12T14:15:00Z",
+        "Mean_H": 2.45,
+        "Mean_D": 3.11,
+        "Mean_A": 2.55,
+        "Sources": 34
+    },
+    {
+        "Home": "Celta Vigo",
+        "Away": "Oviedo",
+        "Time": "2026-04-12T16:30:00Z",
+        "Mean_H": 1.61,
+        "Mean_D": 4.24,
+        "Mean_A": 4.79,
+        "Sources": 21
+    },
+    {
+        "Home": "Athletic Bilbao",
+        "Away": "Villarreal",
+        "Time": "2026-04-12T19:00:00Z",
+        "Mean_H": 2.37,
+        "Mean_D": 3.48,
+        "Mean_A": 2.81,
+        "Sources": 34
+    },
+    {
+        "Home": "Levante",
+        "Away": "Getafe",
+        "Time": "2026-04-13T19:00:00Z",
+        "Mean_H": 2.56,
+        "Mean_D": 2.83,
+        "Mean_A": 2.66,
+        "Sources": 34
+    }
+]
