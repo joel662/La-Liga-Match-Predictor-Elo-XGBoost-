@@ -222,14 +222,18 @@ with tab1:
         model_obj = all_models[selected_model_name]['model']
         ml_probs = model_obj.predict_proba(input_data)[0] 
         
-        # Get Elo Probs baseline
-        def expected_result(elo_a, elo_b):
-            return 1 / (10 ** ((elo_b - elo_a) / 400) + 1)
-        
-        elo_h_prob = expected_result(h_info['Elo'] + 75, a_info['Elo'])
-        elo_a_prob = expected_result(a_info['Elo'], h_info['Elo'] + 75)
-        elo_d_prob = 1 - (elo_h_prob + elo_a_prob)
-        elo_probs = np.array([elo_h_prob, elo_d_prob, elo_a_prob])
+        # Get Elo Probs baseline (mirrors data2.py get_elo_win_probs logic)
+        # Fixed draw probability of 25% anchored, remaining 75% split by Elo strength.
+        # This prevents negative draw probabilities which occur with the naive 1-(h+a) formula.
+        def get_elo_win_probs(elo_h, elo_a, home_adv=75, draw_prob=0.25):
+            win_h = 1 / (1 + 10 ** ((elo_a - (elo_h + home_adv)) / 400))
+            win_a = 1 / (1 + 10 ** (((elo_h + home_adv) - elo_a) / 400))
+            rem_prob = 1.0 - draw_prob
+            p_h = win_h * rem_prob
+            p_a = win_a * rem_prob
+            return np.array([p_h, draw_prob, p_a])
+
+        elo_probs = get_elo_win_probs(h_info['Elo'], a_info['Elo'])
         
         # Load optimized weights
         weights = get_optimized_weights(selected_model_name)

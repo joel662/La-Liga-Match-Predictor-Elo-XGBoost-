@@ -560,6 +560,12 @@ print("\n[DONE] All set! Your .pkl files are ready in the local folder.")
 # 3. Export current_team_stats.csv for Dashboard
 STATS_PATH = "current_team_stats.csv"
 print(f"[INFO] Exporting {STATS_PATH}...")
+
+# Compute actual league-average odds from the dataset as fallback values
+avg_market_h = df['Market_H'].mean() if 'Market_H' in df.columns and df['Market_H'].notna().any() else 2.10
+avg_market_d = df['Market_D'].mean() if 'Market_D' in df.columns and df['Market_D'].notna().any() else 3.30
+avg_market_a = df['Market_A'].mean() if 'Market_A' in df.columns and df['Market_A'].notna().any() else 3.50
+
 latest_stats = []
 for team in teams:
     # Get latest Elo, Form, GD from team_history
@@ -571,7 +577,9 @@ for team in teams:
         'Elo': elo[team],
         'Form': form,
         'GD': gd,
-        'Market_H': 2.0, 'Market_D': 3.4, 'Market_A': 3.5 
+        'Market_H': round(avg_market_h, 2),
+        'Market_D': round(avg_market_d, 2),
+        'Market_A': round(avg_market_a, 2)
     })
 pd.DataFrame(latest_stats).to_csv(STATS_PATH, index=False)
 
