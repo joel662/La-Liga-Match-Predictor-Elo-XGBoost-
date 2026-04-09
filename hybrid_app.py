@@ -165,7 +165,6 @@ with st.sidebar:
     col1.metric("Accuracy", f"{metrics['accuracy']:.1%}")
     col2.metric("Log Loss", f"{metrics['log_loss']:.3f}")
     
-    st.info(f"⚖️ Blended Analysis: {metrics.get('ml_weight', 0.5):.0%} ML / {metrics.get('elo_weight', 0.5):.0%} Elo")
 
 # --- MAIN DASHBOARD ---
 st.title("🇪🇸 LaLiga Match Predictor Pro")
@@ -251,7 +250,7 @@ with tab1:
         st.divider()
         st.balloons()
         
-        c1, c2, c3 = st.columns(3)
+        c1, c2 = st.columns(2)
         with c1:
             st.markdown(f"<div class='prediction-card'><h4>Verdict for {home_team} vs {away_team}:</h4><h1>{results_labels[winner_idx]}</h1><h2>{prob_val:.1%} Confidence</h2></div>", unsafe_allow_html=True)
         
@@ -264,12 +263,6 @@ with tab1:
             ))
             fig.update_layout(title="Probability Synthesis", template="plotly_dark", height=200, margin=dict(l=0, r=0, t=30, b=0))
             st.plotly_chart(fig, use_container_width=True)
-            
-        with c3:
-            st.subheader("Blended Intelligence")
-            st.write(f"**ML Influence:** {w_ml:.0%}")
-            st.write(f"**Elo Historical:** {w_elo:.0%}")
-            st.progress(float(w_ml))
 
 with tab2:
     st.subheader("Model Diagnostic Center")
