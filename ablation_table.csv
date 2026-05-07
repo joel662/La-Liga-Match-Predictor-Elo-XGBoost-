@@ -1,0 +1,24 @@
+Scenario,Component,Model,Acc_%,Draw_Recall,Log_Loss,Delta_Acc
+All Leagues Combined,XGBoost,XGBoost,48.32,23.6,18.6277,0.0
+All Leagues Combined,Hybrid (XGBoost-Elo),Hybrid (XGBoost-Elo),48.39,23.1,18.6012,0.07
+All Leagues Combined,Stacked (XGBMeta),Stacked (XGBMeta),50.92,2.6,17.6901,2.6
+Bundesliga,XGBoost,XGBoost,49.81,26.6,18.0909,0.0
+Bundesliga,Hybrid (XGBoost-Elo),Hybrid (XGBoost-Elo),50.96,25.0,17.6766,1.15
+Bundesliga,Stacked (XGBMeta),Stacked (XGBMeta),54.41,6.2,16.4337,4.6
+La Liga,XGBoost,XGBoost,49.68,46.2,18.1381,0.0
+La Liga,Hybrid (XGBoost-Elo),Hybrid (XGBoost-Elo),51.94,43.6,17.3242,2.26
+La Liga,Stacked (XGBMeta),Stacked (XGBMeta),52.26,7.7,17.2079,2.58
+La Liga,DrawThresh,DrawThresh(0.35)+XGBoost,45.48,59.0,19.6496,-4.2
+Ligue 1,XGBoost,XGBoost,52.71,8.3,17.0439,0.0
+Ligue 1,Hybrid (XGBoost-Elo),Hybrid (XGBoost-Elo),53.1,5.0,16.9042,0.39
+Ligue 1,Stacked (XGBMeta),Stacked (XGBMeta),52.71,1.7,17.0439,0.0
+Premier League,XGBoost,XGBoost,44.51,25.6,19.9991,0.0
+Premier League,Hybrid (XGBoost-Elo),Hybrid (XGBoost-Elo),46.08,24.4,19.4342,1.57
+Premier League,Stacked (XGBMeta),Stacked (XGBMeta),48.59,2.3,18.5303,4.08
+Serie A,XGBoost,XGBoost,50.62,26.8,17.7966,0.0
+Serie A,Hybrid (XGBoost-Elo),Hybrid (XGBoost-Elo),50.94,26.8,17.6839,0.32
+Serie A,Stacked (XGBMeta),Stacked (XGBMeta),53.75,13.4,16.6702,3.13
+Serie A,DrawThresh,DrawThresh(0.33)+XGBoost,45.62,53.7,19.5987,-5.0
+Top 5 Combined,XGBoost,XGBoost,49.86,27.3,18.0709,0.0
+Top 5 Combined,Hybrid (XGBoost-Elo),Hybrid (XGBoost-Elo),49.86,27.3,18.0709,0.0
+Top 5 Combined,Stacked (XGBMeta),Stacked (XGBMeta),54.09,3.8,16.5487,4.23

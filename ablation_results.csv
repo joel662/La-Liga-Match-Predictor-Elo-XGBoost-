@@ -1,0 +1,43 @@
+Scenario,Feature Set,Accuracy %,Macro-F1,Balanced Acc,Home Recall %,Draw Recall %,Away Recall %,Log Loss (soft)
+Premier League,Odds only,37.62,0.3592,0.3629,42.1,19.8,47.0,1.178
+Premier League,Elo only,41.69,0.4048,0.4047,50.4,36.0,35.0,1.1237
+Premier League,Form only,39.5,0.3575,0.3639,57.9,16.3,35.0,1.189
+Premier League,Odds + Form,42.63,0.3837,0.3931,61.7,16.3,40.0,1.1919
+Premier League,Full ML features,42.63,0.3798,0.3901,63.9,15.1,38.0,1.1534
+Premier League,Full ML + Elo blend (w=0.70),43.57,0.367,0.391,69.2,8.1,40.0,1.0738
+La Liga,Odds only,49.35,0.4702,0.4746,55.6,42.3,44.4,1.1076
+La Liga,Elo only,42.26,0.4041,0.4076,47.0,32.1,43.2,1.0921
+La Liga,Form only,45.81,0.4079,0.4068,62.9,29.5,29.6,1.0589
+La Liga,Odds + Form,47.1,0.4354,0.4348,58.9,30.8,40.7,1.0741
+La Liga,Full ML features,46.77,0.4238,0.4228,61.6,28.2,37.0,1.0771
+La Liga,Full ML + Elo blend (w=0.91),45.81,0.4129,0.412,60.9,25.6,37.0,1.0575
+Serie A,Odds only,48.12,0.4627,0.4616,58.1,31.7,48.6,1.0596
+Serie A,Elo only,48.75,0.4823,0.4849,46.5,43.9,55.0,1.0679
+Serie A,Form only,42.81,0.3918,0.397,57.4,15.9,45.9,1.0996
+Serie A,Odds + Form,51.88,0.4894,0.4919,62.0,26.8,58.7,1.0414
+Serie A,Full ML features,49.06,0.4627,0.4638,61.2,25.6,52.3,1.0634
+Serie A,Full ML + Elo blend (w=0.91),48.75,0.4566,0.4587,61.2,23.2,53.2,1.0431
+Bundesliga,Odds only,48.28,0.4577,0.4581,57.4,31.2,48.8,1.0351
+Bundesliga,Elo only,44.06,0.4299,0.433,48.7,42.2,39.0,1.0823
+Bundesliga,Form only,45.59,0.4216,0.4227,58.3,23.4,45.1,1.1258
+Bundesliga,Odds + Form,47.51,0.4243,0.4303,64.3,17.2,47.6,1.073
+Bundesliga,Full ML features,49.43,0.4533,0.4552,64.3,23.4,48.8,1.0448
+Bundesliga,Full ML + Elo blend (w=0.51),50.96,0.4202,0.4449,75.7,7.8,50.0,0.9593
+Ligue 1,Odds only,46.9,0.4418,0.4477,51.6,30.0,52.7,1.1962
+Ligue 1,Elo only,46.51,0.4454,0.4511,50.0,36.7,48.6,1.138
+Ligue 1,Form only,39.92,0.314,0.3317,59.7,3.3,36.5,1.1956
+Ligue 1,Odds + Form,47.29,0.3877,0.4103,63.7,6.7,52.7,1.1476
+Ligue 1,Full ML features,50.39,0.4037,0.4307,70.2,5.0,54.1,1.115
+Ligue 1,Full ML + Elo blend (w=0.43),51.94,0.3907,0.4376,74.2,1.7,55.4,0.9838
+Top 5 Leagues Combined,Odds only,47.0,0.4396,0.4482,52.0,22.2,60.3,1.0227
+Top 5 Leagues Combined,Elo only,48.43,0.4695,0.4728,51.2,35.7,54.9,1.0203
+Top 5 Leagues Combined,Form only,45.37,0.4249,0.4273,54.8,24.3,49.1,1.0387
+Top 5 Leagues Combined,Odds + Form,49.52,0.4616,0.467,58.4,24.1,57.6,1.0065
+Top 5 Leagues Combined,Full ML features,49.39,0.461,0.4666,58.0,24.6,57.4,1.0054
+Top 5 Leagues Combined,Full ML + Elo blend (w=1.00),49.32,0.4605,0.4661,57.8,24.6,57.4,1.0054
+All Leagues Combined,Odds only,48.1,0.459,0.4657,53.5,28.2,58.1,1.0205
+All Leagues Combined,Elo only,46.48,0.4467,0.4494,52.5,29.4,52.9,1.027
+All Leagues Combined,Form only,42.11,0.4035,0.4069,47.8,26.7,47.6,1.0609
+All Leagues Combined,Odds + Form,47.73,0.4525,0.459,54.7,26.3,56.7,1.0205
+All Leagues Combined,Full ML features,48.0,0.454,0.4609,55.3,25.9,57.1,1.0198
+All Leagues Combined,Full ML + Elo blend (w=0.99),48.2,0.4547,0.4619,56.0,25.4,57.1,1.0192
